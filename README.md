@@ -70,7 +70,7 @@ No Python installation is required.
 Run:
 
 ```bash
-python main.py
+python numtowords.py
 ```
 
 ---
