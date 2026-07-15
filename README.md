@@ -144,7 +144,9 @@ abc
 The application provides a simple and intuitive interface that includes:
 
 - Amount input field
+- Uppercase Switch
 - Convert button
+- Copy to Clipboard
 - Output display area
 - Error message dialog for invalid inputs
 
@@ -190,7 +192,6 @@ This application can be used for:
 
 ## Future Enhancements
 
-- Copy output to clipboard
 - Save converted results to a text file
 - Print functionality
 - Multiple currency support

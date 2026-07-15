@@ -76,6 +76,13 @@ def toggle_uppercase():
         process_conversion()
 
 
+def clear_input():
+    entry.delete(0, tk.END)
+    entry.focus_set()
+    result_text.delete("1.0", tk.END)
+    reset_copy_feedback()
+
+
 def reset_copy_feedback():
     if copy_btn is not None:
         copy_btn.config(text="Copy to Clipboard", bg="#0f766e", fg="white")
@@ -171,8 +178,11 @@ card.pack(fill=tk.BOTH, expand=True, padx=1, pady=1)
 input_label = tk.Label(card, text="Enter Amount (AED)", font=("Segoe UI", 11, "bold"), fg="#1e293b", bg="white")
 input_label.pack(anchor="w", padx=18, pady=(16, 6))
 
+input_row = tk.Frame(card, bg="white")
+input_row.pack(fill=tk.X, padx=18, pady=4)
+
 entry = tk.Entry(
-    card,
+    input_row,
     font=("Segoe UI", 14),
     width=28,
     justify="center",
@@ -182,8 +192,21 @@ entry = tk.Entry(
     highlightcolor="#2563eb",
     highlightbackground="#cbd5e1"
 )
-entry.pack(padx=18, pady=4)
+entry.pack(side=tk.LEFT, fill=tk.X, expand=True)
 entry.insert(0, "1234.50")
+
+clear_btn = tk.Button(
+    input_row,
+    text="Clear",
+    font=("Segoe UI", 10),
+    bg="#e2e8f0",
+    fg="#334155",
+    relief="flat",
+    padx=10,
+    pady=6,
+    command=clear_input
+)
+clear_btn.pack(side=tk.RIGHT, padx=(8, 0))
 
 button_row = tk.Frame(card, bg="white")
 button_row.pack(pady=(10, 8))
