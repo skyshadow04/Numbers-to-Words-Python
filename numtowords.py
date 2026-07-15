@@ -1,6 +1,7 @@
 import os
 import sys
 import tkinter as tk
+from datetime import datetime
 from tkinter import messagebox
 
 uppercase_var = None
@@ -12,6 +13,29 @@ def resource_path(relative_path):
     except Exception:
         base_path = os.path.abspath(".")
     return os.path.join(base_path, relative_path)
+
+
+def get_history_file_path():
+    if getattr(sys, "frozen", False):
+        base_dir = os.path.dirname(os.path.abspath(sys.executable))
+    else:
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+    today = datetime.now().strftime("%Y-%m-%d")
+    return os.path.join(base_dir, f"converted_numbers_{today}.txt")
+
+
+def append_number_to_history(number, file_path=None):
+    history_path = file_path or get_history_file_path()
+    if os.path.exists(history_path):
+        with open(history_path, "r", encoding="utf-8") as history_file:
+            existing_lines = [line.rstrip("\n") for line in history_file if line.strip()]
+    else:
+        existing_lines = []
+
+    next_index = len(existing_lines) + 1
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    with open(history_path, "a", encoding="utf-8") as history_file:
+        history_file.write(f"{next_index}. {number} {timestamp}\n")
 
 
 def number_to_words(n):
@@ -129,149 +153,156 @@ def process_conversion():
         word_result = currency_to_words(user_input)
         if uppercase_var.get():
             word_result = word_result.upper()
+        append_number_to_history(user_input)
         result_text.delete("1.0", tk.END)
         result_text.insert(tk.END, word_result)
     except ValueError:
         messagebox.showerror("Error", "Please enter a valid positive amount (e.g., 1250.50) up to 999 Billion.")
 
-# GUI Setup
-root = tk.Tk()
-root.title("LDWS AED Currency to Words Converter")
-root.geometry("540x500")
-root.resizable(False, False)
-root.configure(bg="#f3f6fb")
+def main():
+    global root, uppercase_var, entry, clear_btn, uppercase_btn, convert_btn, copy_btn, status_label, result_text
 
-uppercase_var = tk.BooleanVar(value=False)
+    root = tk.Tk()
+    root.title("LDWS AED Currency to Words Converter")
+    root.geometry("540x500")
+    root.resizable(False, False)
+    root.configure(bg="#f3f6fb")
 
-icon_path = resource_path("icon.ico")
-if os.path.exists(icon_path):
-    try:
-        root.iconbitmap(default=icon_path)
-        root.wm_iconbitmap(icon_path)
-    except tk.TclError:
-        pass
+    uppercase_var = tk.BooleanVar(value=False)
 
-main_frame = tk.Frame(root, bg="#f3f6fb")
-main_frame.pack(fill=tk.BOTH, expand=True, padx=24, pady=20)
+    icon_path = resource_path("icon.ico")
+    if os.path.exists(icon_path):
+        try:
+            root.iconbitmap(default=icon_path)
+            root.wm_iconbitmap(icon_path)
+        except tk.TclError:
+            pass
 
-header = tk.Label(
-    main_frame,
-    text="Number to Words Converter",
-    font=("Segoe UI", 18, "bold"),
-    fg="#0f172a",
-    bg="#f3f6fb"
-)
-header.pack(pady=(0, 6))
+    main_frame = tk.Frame(root, bg="#f3f6fb")
+    main_frame.pack(fill=tk.BOTH, expand=True, padx=24, pady=20)
 
-subtitle = tk.Label(
-    main_frame,
-    text="Convert AED amounts into polished words in a clean, modern layout",
-    font=("Segoe UI", 10),
-    fg="#64748b",
-    bg="#f3f6fb"
-)
-subtitle.pack(pady=(0, 14))
+    header = tk.Label(
+        main_frame,
+        text="Number to Words Converter",
+        font=("Segoe UI", 18, "bold"),
+        fg="#0f172a",
+        bg="#f3f6fb"
+    )
+    header.pack(pady=(0, 6))
 
-card = tk.Frame(main_frame, bg="#ffffff", bd=0, highlightthickness=1, highlightbackground="#dbeafe")
-card.pack(fill=tk.BOTH, expand=True, padx=1, pady=1)
+    subtitle = tk.Label(
+        main_frame,
+        text="Convert AED amounts into polished words in a clean, modern layout",
+        font=("Segoe UI", 10),
+        fg="#64748b",
+        bg="#f3f6fb"
+    )
+    subtitle.pack(pady=(0, 14))
 
-input_label = tk.Label(card, text="Enter Amount (AED)", font=("Segoe UI", 11, "bold"), fg="#1e293b", bg="white")
-input_label.pack(anchor="w", padx=18, pady=(16, 6))
+    card = tk.Frame(main_frame, bg="#ffffff", bd=0, highlightthickness=1, highlightbackground="#dbeafe")
+    card.pack(fill=tk.BOTH, expand=True, padx=1, pady=1)
 
-input_row = tk.Frame(card, bg="white")
-input_row.pack(fill=tk.X, padx=18, pady=4)
+    input_label = tk.Label(card, text="Enter Amount (AED)", font=("Segoe UI", 11, "bold"), fg="#1e293b", bg="white")
+    input_label.pack(anchor="w", padx=18, pady=(16, 6))
 
-entry = tk.Entry(
-    input_row,
-    font=("Segoe UI", 14),
-    width=28,
-    justify="center",
-    bd=0,
-    relief="flat",
-    highlightthickness=1,
-    highlightcolor="#2563eb",
-    highlightbackground="#cbd5e1"
-)
-entry.pack(side=tk.LEFT, fill=tk.X, expand=True)
-entry.insert(0, "1234.50")
+    input_row = tk.Frame(card, bg="white")
+    input_row.pack(fill=tk.X, padx=18, pady=4)
 
-clear_btn = tk.Button(
-    input_row,
-    text="Clear",
-    font=("Segoe UI", 10),
-    bg="#e2e8f0",
-    fg="#334155",
-    relief="flat",
-    padx=10,
-    pady=6,
-    command=clear_input
-)
-clear_btn.pack(side=tk.RIGHT, padx=(8, 0))
+    entry = tk.Entry(
+        input_row,
+        font=("Segoe UI", 14),
+        width=28,
+        justify="center",
+        bd=0,
+        relief="flat",
+        highlightthickness=1,
+        highlightcolor="#2563eb",
+        highlightbackground="#cbd5e1"
+    )
+    entry.pack(side=tk.LEFT, fill=tk.X, expand=True)
+    entry.insert(0, "1234.50")
 
-button_row = tk.Frame(card, bg="white")
-button_row.pack(pady=(10, 8))
+    clear_btn = tk.Button(
+        input_row,
+        text="Clear",
+        font=("Segoe UI", 10),
+        bg="#e2e8f0",
+        fg="#334155",
+        relief="flat",
+        padx=10,
+        pady=6,
+        command=clear_input
+    )
+    clear_btn.pack(side=tk.RIGHT, padx=(8, 0))
 
-uppercase_btn = tk.Button(
-    button_row,
-    text="Uppercase: OFF",
-    font=("Segoe UI", 10),
-    bg="#f1f5f9",
-    fg="#334155",
-    relief="flat",
-    padx=12,
-    pady=6,
-    command=toggle_uppercase
-)
-uppercase_btn.pack(side=tk.LEFT, padx=(0, 8))
+    button_row = tk.Frame(card, bg="white")
+    button_row.pack(pady=(10, 8))
 
-convert_btn = tk.Button(
-    button_row,
-    text="Convert to Words",
-    font=("Segoe UI", 10),
-    bg="#2563eb",
-    fg="white",
-    relief="raised",
-    bd=0,
-    padx=12,
-    pady=6,
-    command=process_conversion
-)
-convert_btn.pack(side=tk.LEFT, padx=(0, 8))
+    uppercase_btn = tk.Button(
+        button_row,
+        text="Uppercase: OFF",
+        font=("Segoe UI", 10),
+        bg="#f1f5f9",
+        fg="#334155",
+        relief="flat",
+        padx=12,
+        pady=6,
+        command=toggle_uppercase
+    )
+    uppercase_btn.pack(side=tk.LEFT, padx=(0, 8))
 
-copy_btn = tk.Button(
-    button_row,
-    text="Copy to Clipboard",
-    font=("Segoe UI", 10),
-    bg="#0f766e",
-    fg="white",
-    relief="raised",
-    bd=0,
-    padx=12,
-    pady=6,
-    command=copy_to_clipboard
-)
-copy_btn.pack(side=tk.LEFT)
+    convert_btn = tk.Button(
+        button_row,
+        text="Convert to Words",
+        font=("Segoe UI", 10),
+        bg="#2563eb",
+        fg="white",
+        relief="raised",
+        bd=0,
+        padx=12,
+        pady=6,
+        command=process_conversion
+    )
+    convert_btn.pack(side=tk.LEFT, padx=(0, 8))
 
-status_label = tk.Label(
-    button_row,
-    text="",
-    font=("Segoe UI", 9),
-    fg="#16a34a",
-    bg="white"
-)
-status_label.pack(side=tk.LEFT, padx=(8, 0))
+    copy_btn = tk.Button(
+        button_row,
+        text="Copy to Clipboard",
+        font=("Segoe UI", 10),
+        bg="#0f766e",
+        fg="white",
+        relief="raised",
+        bd=0,
+        padx=12,
+        pady=6,
+        command=copy_to_clipboard
+    )
+    copy_btn.pack(side=tk.LEFT)
 
-result_label = tk.Label(card, text="Result", font=("Segoe UI", 11, "bold"), fg="#1e293b", bg="white")
-result_label.pack(anchor="w", padx=18, pady=(10, 6))
+    status_label = tk.Label(
+        button_row,
+        text="",
+        font=("Segoe UI", 9),
+        fg="#16a34a",
+        bg="white"
+    )
+    status_label.pack(side=tk.LEFT, padx=(8, 0))
 
-result_frame = tk.Frame(card, bg="white")
-result_frame.pack(fill=tk.BOTH, expand=True, padx=18, pady=(0, 16))
+    result_label = tk.Label(card, text="Result", font=("Segoe UI", 11, "bold"), fg="#1e293b", bg="white")
+    result_label.pack(anchor="w", padx=18, pady=(10, 6))
 
-result_text = tk.Text(result_frame, font=("Segoe UI", 11), height=10, wrap="word", bd=1, relief="solid", bg="#f8fafc")
-result_text.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+    result_frame = tk.Frame(card, bg="white")
+    result_frame.pack(fill=tk.BOTH, expand=True, padx=18, pady=(0, 16))
 
-result_scroll = tk.Scrollbar(result_frame, orient=tk.VERTICAL, command=result_text.yview)
-result_scroll.pack(side=tk.RIGHT, fill=tk.Y)
-result_text.config(yscrollcommand=result_scroll.set)
+    result_text = tk.Text(result_frame, font=("Segoe UI", 11), height=10, wrap="word", bd=1, relief="solid", bg="#f8fafc")
+    result_text.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
-root.mainloop()
+    result_scroll = tk.Scrollbar(result_frame, orient=tk.VERTICAL, command=result_text.yview)
+    result_scroll.pack(side=tk.RIGHT, fill=tk.Y)
+    result_text.config(yscrollcommand=result_scroll.set)
+
+    root.mainloop()
+
+
+if __name__ == "__main__":
+    main()

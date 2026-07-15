@@ -96,6 +96,14 @@ One Thousand Two Hundred Fifty Dirhams and Seventy-Five Fils Only
 
 4. To convert another amount, clear the input field and enter a new value.
 
+5. After converting, the inputted number will be on a textfile, the textfile will the the filename of converted_numbers_{date}, the filename will be different each day to easily track the inputted number when used daily; inside it will be the inputted number with its timestamp.
+
+Example Filename:
+```
+converted_numbers_2026-07-15
+```
+
+
 ---
 
 ## Sample Conversions
@@ -193,7 +201,6 @@ This application can be used for:
 
 ## Future Enhancements
 
-- Save converted results to a text file
 - Print functionality
 - Multiple currency support
 - Arabic language output
