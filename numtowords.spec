@@ -2,7 +2,7 @@
 
 
 a = Analysis(
-    ['numtowords.py'],
+    ['c:/Users/cpotc/OneDrive/Desktop/Numbers to Words/numtowords.py'],
     pathex=[],
     binaries=[],
     datas=[],
@@ -35,5 +35,5 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
-    icon=['icon.ico'],
+    icon=['c:\\Users\\cpotc\\OneDrive\\Desktop\\Numbers to Words\\icon.ico'],
 )
