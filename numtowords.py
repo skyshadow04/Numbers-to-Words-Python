@@ -1,7 +1,17 @@
+import os
+import sys
 import tkinter as tk
 from tkinter import messagebox
 
-uppercase_var = tk.BooleanVar(value=False)
+uppercase_var = None
+
+
+def resource_path(relative_path):
+    try:
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+    return os.path.join(base_path, relative_path)
 
 
 def number_to_words(n):
@@ -58,6 +68,8 @@ def currency_to_words(amount_str):
     return " and ".join(result) + " Only"
 
 def toggle_uppercase():
+    if uppercase_var is None:
+        return
     uppercase_var.set(not uppercase_var.get())
     uppercase_btn.config(text="Uppercase: ON" if uppercase_var.get() else "Uppercase: OFF")
     if entry.get().strip():
@@ -86,22 +98,101 @@ def process_conversion():
 # GUI Setup
 root = tk.Tk()
 root.title("AED Currency to Words Converter")
-root.geometry("450x320")
+root.geometry("520x420")
 root.resizable(False, False)
+root.configure(bg="#f4f7fb")
 
-tk.Label(root, text="Enter Amount (AED):", font=("Arial", 12)).pack(pady=10)
-entry = tk.Entry(root, font=("Arial", 14), width=25, justify="center")
-entry.pack(pady=5)
-entry.insert(0, "1234.50")  # Placeholder example
+uppercase_var = tk.BooleanVar(value=False)
 
-uppercase_btn = tk.Button(root, text="Uppercase: OFF", font=("Arial", 10), command=toggle_uppercase)
-uppercase_btn.pack(pady=(0, 10))
+icon_path = resource_path("icon.ico")
+if os.path.exists(icon_path):
+    try:
+        root.iconbitmap(default=icon_path)
+        root.wm_iconbitmap(icon_path)
+    except tk.TclError:
+        pass
 
-convert_btn = tk.Button(root, text="Convert to Words", font=("Arial", 12, "bold"), bg="#0073e6", fg="white", command=process_conversion)
-convert_btn.pack(pady=5)
+main_frame = tk.Frame(root, bg="#f4f7fb")
+main_frame.pack(fill=tk.BOTH, expand=True, padx=24, pady=20)
 
-tk.Label(root, text="Result:", font=("Arial", 11)).pack()
-result_text = tk.Text(root, font=("Arial", 11), height=4, width=45, wrap="word")
-result_text.pack(pady=5)
+header = tk.Label(
+    main_frame,
+    text="Number to Words Converter",
+    font=("Segoe UI", 16, "bold"),
+    fg="#102a43",
+    bg="#f4f7fb"
+)
+header.pack(pady=(0, 10))
+
+subtitle = tk.Label(
+    main_frame,
+    text="Convert amounts to words with a modern, clean look",
+    font=("Segoe UI", 10),
+    fg="#486581",
+    bg="#f4f7fb"
+)
+subtitle.pack(pady=(0, 16))
+
+card = tk.Frame(main_frame, bg="white", bd=0, highlightthickness=1, highlightbackground="#d9e2ec")
+card.pack(fill=tk.BOTH, expand=True, padx=2, pady=2)
+
+input_label = tk.Label(card, text="Enter Amount (AED)", font=("Segoe UI", 11, "bold"), fg="#243b53", bg="white")
+input_label.pack(anchor="w", padx=16, pady=(16, 6))
+
+entry = tk.Entry(
+    card,
+    font=("Segoe UI", 14),
+    width=28,
+    justify="center",
+    bd=1,
+    relief="solid",
+    highlightthickness=1,
+    highlightcolor="#7b61ff",
+    highlightbackground="#cbd2d9"
+)
+entry.pack(padx=16, pady=4)
+entry.insert(0, "1234.50")
+
+button_row = tk.Frame(card, bg="white")
+button_row.pack(pady=(10, 8))
+
+uppercase_btn = tk.Button(
+    button_row,
+    text="Uppercase: OFF",
+    font=("Segoe UI", 10),
+    bg="#e9eef7",
+    fg="#243b53",
+    relief="flat",
+    padx=10,
+    pady=6,
+    command=toggle_uppercase
+)
+uppercase_btn.pack(side=tk.LEFT, padx=(0, 8))
+
+convert_btn = tk.Button(
+    button_row,
+    text="Convert to Words",
+    font=("Segoe UI", 11, "bold"),
+    bg="#2563eb",
+    fg="white",
+    relief="flat",
+    padx=12,
+    pady=6,
+    command=process_conversion
+)
+convert_btn.pack(side=tk.LEFT)
+
+result_label = tk.Label(card, text="Result", font=("Segoe UI", 11, "bold"), fg="#243b53", bg="white")
+result_label.pack(anchor="w", padx=16, pady=(10, 6))
+
+result_frame = tk.Frame(card, bg="white")
+result_frame.pack(fill=tk.BOTH, padx=16, pady=(0, 16))
+
+result_text = tk.Text(result_frame, font=("Segoe UI", 11), height=8, width=34, wrap="word", bd=1, relief="solid")
+result_text.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+
+result_scroll = tk.Scrollbar(result_frame, orient=tk.VERTICAL, command=result_text.yview)
+result_scroll.pack(side=tk.RIGHT, fill=tk.Y)
+result_text.config(yscrollcommand=result_scroll.set)
 
 root.mainloop()
