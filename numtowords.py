@@ -1,6 +1,9 @@
 import tkinter as tk
 from tkinter import messagebox
 
+uppercase_var = tk.BooleanVar(value=False)
+
+
 def number_to_words(n):
     if n == 0: return "Zero"
     ones = ["", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine"]
@@ -54,6 +57,13 @@ def currency_to_words(amount_str):
 
     return " and ".join(result) + " Only"
 
+def toggle_uppercase():
+    uppercase_var.set(not uppercase_var.get())
+    uppercase_btn.config(text="Uppercase: ON" if uppercase_var.get() else "Uppercase: OFF")
+    if entry.get().strip():
+        process_conversion()
+
+
 def process_conversion():
     try:
         user_input = entry.get().strip()
@@ -66,6 +76,8 @@ def process_conversion():
             raise ValueError("Out of bounds")
             
         word_result = currency_to_words(user_input)
+        if uppercase_var.get():
+            word_result = word_result.upper()
         result_text.delete("1.0", tk.END)
         result_text.insert(tk.END, word_result)
     except ValueError:
@@ -82,8 +94,11 @@ entry = tk.Entry(root, font=("Arial", 14), width=25, justify="center")
 entry.pack(pady=5)
 entry.insert(0, "1234.50")  # Placeholder example
 
+uppercase_btn = tk.Button(root, text="Uppercase: OFF", font=("Arial", 10), command=toggle_uppercase)
+uppercase_btn.pack(pady=(0, 10))
+
 convert_btn = tk.Button(root, text="Convert to Words", font=("Arial", 12, "bold"), bg="#0073e6", fg="white", command=process_conversion)
-convert_btn.pack(pady=15)
+convert_btn.pack(pady=5)
 
 tk.Label(root, text="Result:", font=("Arial", 11)).pack()
 result_text = tk.Text(root, font=("Arial", 11), height=4, width=45, wrap="word")
