@@ -76,6 +76,38 @@ def toggle_uppercase():
         process_conversion()
 
 
+def reset_copy_feedback():
+    if copy_btn is not None:
+        copy_btn.config(text="Copy to Clipboard", bg="#0f766e", fg="white")
+    if status_label is not None:
+        status_label.config(text="", fg="#16a34a")
+
+
+def animate_copy_feedback(success=True):
+    if success:
+        copy_btn.config(text="Copying...", bg="#0f766e", fg="white")
+        status_label.config(text="Copying to clipboard", fg="#0f766e")
+        root.after(180, lambda: copy_btn.config(text="Copied ✓", bg="#16a34a", fg="white"))
+        root.after(180, lambda: status_label.config(text="Copied to clipboard", fg="#16a34a"))
+        root.after(1200, reset_copy_feedback)
+    else:
+        copy_btn.config(text="Nothing to copy", bg="#b91c1c", fg="white")
+        status_label.config(text="No result available", fg="#b91c1c")
+        root.after(1200, reset_copy_feedback)
+
+
+def copy_to_clipboard():
+    try:
+        text_to_copy = result_text.get("1.0", tk.END).strip()
+        if not text_to_copy:
+            raise ValueError("No result")
+        root.clipboard_clear()
+        root.clipboard_append(text_to_copy)
+        animate_copy_feedback(True)
+    except Exception:
+        animate_copy_feedback(False)
+
+
 def process_conversion():
     try:
         user_input = entry.get().strip()
@@ -97,10 +129,10 @@ def process_conversion():
 
 # GUI Setup
 root = tk.Tk()
-root.title("AED Currency to Words Converter")
-root.geometry("520x420")
+root.title("LDWS AED Currency to Words Converter")
+root.geometry("540x500")
 root.resizable(False, False)
-root.configure(bg="#f4f7fb")
+root.configure(bg="#f3f6fb")
 
 uppercase_var = tk.BooleanVar(value=False)
 
@@ -112,45 +144,45 @@ if os.path.exists(icon_path):
     except tk.TclError:
         pass
 
-main_frame = tk.Frame(root, bg="#f4f7fb")
+main_frame = tk.Frame(root, bg="#f3f6fb")
 main_frame.pack(fill=tk.BOTH, expand=True, padx=24, pady=20)
 
 header = tk.Label(
     main_frame,
     text="Number to Words Converter",
-    font=("Segoe UI", 16, "bold"),
-    fg="#102a43",
-    bg="#f4f7fb"
+    font=("Segoe UI", 18, "bold"),
+    fg="#0f172a",
+    bg="#f3f6fb"
 )
-header.pack(pady=(0, 10))
+header.pack(pady=(0, 6))
 
 subtitle = tk.Label(
     main_frame,
-    text="Convert amounts to words with a modern, clean look",
+    text="Convert AED amounts into polished words in a clean, modern layout",
     font=("Segoe UI", 10),
-    fg="#486581",
-    bg="#f4f7fb"
+    fg="#64748b",
+    bg="#f3f6fb"
 )
-subtitle.pack(pady=(0, 16))
+subtitle.pack(pady=(0, 14))
 
-card = tk.Frame(main_frame, bg="white", bd=0, highlightthickness=1, highlightbackground="#d9e2ec")
-card.pack(fill=tk.BOTH, expand=True, padx=2, pady=2)
+card = tk.Frame(main_frame, bg="#ffffff", bd=0, highlightthickness=1, highlightbackground="#dbeafe")
+card.pack(fill=tk.BOTH, expand=True, padx=1, pady=1)
 
-input_label = tk.Label(card, text="Enter Amount (AED)", font=("Segoe UI", 11, "bold"), fg="#243b53", bg="white")
-input_label.pack(anchor="w", padx=16, pady=(16, 6))
+input_label = tk.Label(card, text="Enter Amount (AED)", font=("Segoe UI", 11, "bold"), fg="#1e293b", bg="white")
+input_label.pack(anchor="w", padx=18, pady=(16, 6))
 
 entry = tk.Entry(
     card,
     font=("Segoe UI", 14),
     width=28,
     justify="center",
-    bd=1,
-    relief="solid",
+    bd=0,
+    relief="flat",
     highlightthickness=1,
-    highlightcolor="#7b61ff",
-    highlightbackground="#cbd2d9"
+    highlightcolor="#2563eb",
+    highlightbackground="#cbd5e1"
 )
-entry.pack(padx=16, pady=4)
+entry.pack(padx=18, pady=4)
 entry.insert(0, "1234.50")
 
 button_row = tk.Frame(card, bg="white")
@@ -160,10 +192,10 @@ uppercase_btn = tk.Button(
     button_row,
     text="Uppercase: OFF",
     font=("Segoe UI", 10),
-    bg="#e9eef7",
-    fg="#243b53",
+    bg="#f1f5f9",
+    fg="#334155",
     relief="flat",
-    padx=10,
+    padx=12,
     pady=6,
     command=toggle_uppercase
 )
@@ -172,23 +204,47 @@ uppercase_btn.pack(side=tk.LEFT, padx=(0, 8))
 convert_btn = tk.Button(
     button_row,
     text="Convert to Words",
-    font=("Segoe UI", 11, "bold"),
+    font=("Segoe UI", 10),
     bg="#2563eb",
     fg="white",
-    relief="flat",
+    relief="raised",
+    bd=0,
     padx=12,
     pady=6,
     command=process_conversion
 )
-convert_btn.pack(side=tk.LEFT)
+convert_btn.pack(side=tk.LEFT, padx=(0, 8))
 
-result_label = tk.Label(card, text="Result", font=("Segoe UI", 11, "bold"), fg="#243b53", bg="white")
-result_label.pack(anchor="w", padx=16, pady=(10, 6))
+copy_btn = tk.Button(
+    button_row,
+    text="Copy to Clipboard",
+    font=("Segoe UI", 10),
+    bg="#0f766e",
+    fg="white",
+    relief="raised",
+    bd=0,
+    padx=12,
+    pady=6,
+    command=copy_to_clipboard
+)
+copy_btn.pack(side=tk.LEFT)
+
+status_label = tk.Label(
+    button_row,
+    text="",
+    font=("Segoe UI", 9),
+    fg="#16a34a",
+    bg="white"
+)
+status_label.pack(side=tk.LEFT, padx=(8, 0))
+
+result_label = tk.Label(card, text="Result", font=("Segoe UI", 11, "bold"), fg="#1e293b", bg="white")
+result_label.pack(anchor="w", padx=18, pady=(10, 6))
 
 result_frame = tk.Frame(card, bg="white")
-result_frame.pack(fill=tk.BOTH, padx=16, pady=(0, 16))
+result_frame.pack(fill=tk.BOTH, expand=True, padx=18, pady=(0, 16))
 
-result_text = tk.Text(result_frame, font=("Segoe UI", 11), height=8, width=34, wrap="word", bd=1, relief="solid")
+result_text = tk.Text(result_frame, font=("Segoe UI", 11), height=10, wrap="word", bd=1, relief="solid", bg="#f8fafc")
 result_text.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
 result_scroll = tk.Scrollbar(result_frame, orient=tk.VERTICAL, command=result_text.yview)
