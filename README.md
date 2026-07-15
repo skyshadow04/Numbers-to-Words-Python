@@ -144,6 +144,7 @@ abc
 The application provides a simple and intuitive interface that includes:
 
 - Amount input field
+- Clear input button
 - Uppercase Switch
 - Convert button
 - Copy to Clipboard
