@@ -1,4 +1,5 @@
 import os
+import re
 import sys
 import tkinter as tk
 from datetime import datetime
@@ -91,18 +92,46 @@ def currency_to_words(amount_str):
 
     return " and ".join(result) + " Only"
 
+
+def parse_bulk_amounts(user_input):
+    cleaned_input = user_input.replace(",", " ").strip()
+    if not cleaned_input:
+        return [], []
+
+    tokens = re.split(r"[\s\t,]+", cleaned_input)
+    valid_amounts = []
+    invalid_entries = []
+
+    for token in tokens:
+        if not token:
+            continue
+
+        if not re.fullmatch(r"\d+(?:\.\d{1,2})?", token):
+            invalid_entries.append(token)
+            continue
+
+        amount_value = float(token)
+        if amount_value < 0 or amount_value > 999999999999.99:
+            invalid_entries.append(token)
+            continue
+
+        valid_amounts.append(token)
+
+    return valid_amounts, invalid_entries
+
+
 def toggle_uppercase():
     if uppercase_var is None:
         return
     uppercase_var.set(not uppercase_var.get())
     uppercase_btn.config(text="Uppercase: ON" if uppercase_var.get() else "Uppercase: OFF")
-    if entry.get().strip():
+    if input_text.get("1.0", tk.END).strip():
         process_conversion()
 
 
 def clear_input():
-    entry.delete(0, tk.END)
-    entry.focus_set()
+    input_text.delete("1.0", tk.END)
+    input_text.focus_set()
     result_text.delete("1.0", tk.END)
     reset_copy_feedback()
 
@@ -141,26 +170,33 @@ def copy_to_clipboard():
 
 def process_conversion():
     try:
-        user_input = entry.get().strip()
+        user_input = input_text.get("1.0", tk.END).strip()
         if not user_input:
             raise ValueError("Empty")
-            
-        # Validate that it is a positive floating-point number
-        float_val = float(user_input)
-        if float_val < 0 or float_val > 999999999999.99:
-            raise ValueError("Out of bounds")
-            
-        word_result = currency_to_words(user_input)
-        if uppercase_var.get():
-            word_result = word_result.upper()
-        append_number_to_history(user_input)
+
+        amounts, invalid_entries = parse_bulk_amounts(user_input)
+        if not amounts:
+            raise ValueError("No valid entries")
+
+        output_lines = []
+        for amount in amounts:
+            word_result = currency_to_words(amount)
+            if uppercase_var.get():
+                word_result = word_result.upper()
+            output_lines.append(word_result)
+            append_number_to_history(amount)
+
+        if invalid_entries:
+            warning_text = "The following entries were skipped:\n" + ", ".join(invalid_entries)
+            messagebox.showwarning("Warning", warning_text)
+
         result_text.delete("1.0", tk.END)
-        result_text.insert(tk.END, word_result)
+        result_text.insert(tk.END, "\n".join(output_lines))
     except ValueError:
-        messagebox.showerror("Error", "Please enter a valid positive amount (e.g., 1250.50) up to 999 Billion.")
+        messagebox.showerror("Error", "Please enter one or more valid positive amounts (e.g., 1250.50) up to 999 Billion.")
 
 def main():
-    global root, uppercase_var, entry, clear_btn, uppercase_btn, convert_btn, copy_btn, status_label, result_text
+    global root, uppercase_var, input_text, clear_btn, uppercase_btn, convert_btn, copy_btn, status_label, result_text
 
     root = tk.Tk()
     root.title("LDWS AED Currency to Words Converter")
@@ -202,25 +238,30 @@ def main():
     card = tk.Frame(main_frame, bg="#ffffff", bd=0, highlightthickness=1, highlightbackground="#dbeafe")
     card.pack(fill=tk.BOTH, expand=True, padx=1, pady=1)
 
-    input_label = tk.Label(card, text="Enter Amount (AED)", font=("Segoe UI", 11, "bold"), fg="#1e293b", bg="white")
+    input_label = tk.Label(card, text="Paste numbers from Excel or enter one per line", font=("Segoe UI", 11, "bold"), fg="#1e293b", bg="white")
     input_label.pack(anchor="w", padx=18, pady=(16, 6))
 
     input_row = tk.Frame(card, bg="white")
-    input_row.pack(fill=tk.X, padx=18, pady=4)
+    input_row.pack(fill=tk.BOTH, expand=False, padx=18, pady=4)
 
-    entry = tk.Entry(
+    input_text = tk.Text(
         input_row,
         font=("Segoe UI", 14),
         width=28,
-        justify="center",
+        height=5,
+        wrap="none",
         bd=0,
         relief="flat",
         highlightthickness=1,
         highlightcolor="#2563eb",
         highlightbackground="#cbd5e1"
     )
-    entry.pack(side=tk.LEFT, fill=tk.X, expand=True)
-    entry.insert(0, "1234.50")
+    input_text.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+    input_text.insert("1.0", "1234.50\n67\n1000.75")
+
+    input_scroll = tk.Scrollbar(input_row, orient=tk.VERTICAL, command=input_text.yview)
+    input_scroll.pack(side=tk.RIGHT, fill=tk.Y)
+    input_text.config(yscrollcommand=input_scroll.set)
 
     clear_btn = tk.Button(
         input_row,

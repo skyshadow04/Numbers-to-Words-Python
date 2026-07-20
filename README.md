@@ -78,25 +78,32 @@ python numtowords.py
 ## User Guide
 
 1. Launch the application.
-2. Enter a numeric amount in the input field.
+2. Paste one or more numeric amounts into the input field.
+   - You can paste values directly from Excel.
+   - Each value can be on its own line or separated by commas.
 
 Example:
 
 ```
-1250.75
+1234.50
+67
+1000.75
 ```
 
-3. Click the **Convert** button.
+3. Click the **Convert to Words** button.
 
 Output:
 
 ```
-One Thousand Two Hundred Fifty Dirhams and Seventy-Five Fils Only
+One Thousand Two Hundred Thirty Four Dirhams and Fifty Fils Only
+Sixty Seven Dirhams Only
+One Thousand Dirhams and Seventy-Five Fils Only
 ```
 
-4. To convert another amount, clear the input field and enter a new value.
+4. Copy the output and paste it back into Excel. Each converted value is placed on a separate line.
 
-5. After converting, the inputted number will be on a textfile, the textfile will the the filename of converted_numbers_{date}, the filename will be different each day to easily track the inputted number when used daily; inside it will be the inputted number with its timestamp.
+5. After converting, each valid input amount is appended to a history text file named `converted_numbers_{date}.txt`.
+   The file records the original values with timestamps to help you track daily conversions.
 
 Example Filename:
 ```
@@ -125,7 +132,8 @@ converted_numbers_2026-07-15
 - Accepts positive numeric values
 - Supports up to two decimal places
 - Decimal values represent **Fils**
-- Invalid or empty inputs will display an appropriate error message
+- Supports multiple lines or comma-separated values for batch conversion
+- Invalid or empty entries are skipped and shown in a warning message
 
 Examples of valid inputs:
 
@@ -135,6 +143,14 @@ Examples of valid inputs:
 10.50
 1250.75
 999999.99
+```
+
+Example Excel-style input:
+
+```
+1234.50 
+67
+1000.75
 ```
 
 Examples of invalid inputs:
@@ -151,13 +167,14 @@ abc
 
 The application provides a simple and intuitive interface that includes:
 
-- Amount input field
+- Multiline input field for batch amounts
 - Clear input button
 - Uppercase Switch
 - Convert button
 - Copy to Clipboard
 - Output display area
 - Error message dialog for invalid inputs
+- Excel-friendly output with one converted phrase per line
 
 The GUI was developed using Python's built-in **Tkinter** library to provide a lightweight and responsive desktop application.
 
